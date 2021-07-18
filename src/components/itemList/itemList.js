@@ -2,18 +2,14 @@ import React, {Component} from 'react';
 import Loading from "../loading";
 import ItemCard from "../itemCard";
 import ErrorPanel from "../errorPanel";
+import {projectsLoaded, projectsError, projectsRequested} from '../../actions';
+import WithSearchService from "../hoc";
+import {connect} from "react-redux";
 import './itemList.scss';
 
-export default class ItemList extends Component {
-
-  state = {
-    itemList: null,
-    error: false,
-    loading: false
-  }
-
+class ItemList extends Component {
   componentDidMount() {
-    this.setState({itemList: null})
+    this.props.projectsLoaded([]);
   }
 
   componentDidUpdate(prevProps) {
@@ -24,54 +20,71 @@ export default class ItemList extends Component {
 
   updateList() {
     const {searchPhrase} = this.props;
-    if (searchPhrase === '') {
-      return;
+    if (searchPhrase.length >= 5) {
+      this.props.projectsRequested();
+      const {SearchService} = this.props;
+      SearchService.getAllProjects(searchPhrase)
+        .then(res => this.props.projectsLoaded(res))
+        .catch(() => this.props.projectsError())
     }
-    this.props.getItems(searchPhrase)
-      .then((itemList) => {
-        this.setState({itemList})
-      })
-      .catch(this.onError);
   }
 
   goToProject(name, author) {
     window.location = `https://github.com/${author}/${name}`;
   }
 
-  onError = (err) => {
-    this.setState({
-      error: true
-    })
-    console.log(err, 1)
-  }
-
   render() {
-    const {itemList, error} = this.state;
-    const {searchPhrase} = this.props;
-    let items = [];
-    const errorPanel = error ? <ErrorPanel/> : null;
+    const {projects, loading, error, searchPhrase} = this.props;
 
-    if (!itemList & searchPhrase !== '') {
+    if (error & searchPhrase.length > 0) {
+      return <ErrorPanel/>
+    }
+    if (loading) {
       return <Loading/>
     }
-    if (itemList) {
-      items = itemList.map((item) => {
-        const {id, ...itemProps} = item;
-        return (
-          <ItemCard
-            key={id}
-            id={id}
-            {...itemProps}
-            goToProject={this.goToProject}
-          />
-        )
-      })
+
+    if (projects.length === 0 & searchPhrase.length >= 5) {
+      return (
+        <h3 className='item-list_empty'>Проектов с заданным именем нет</h3>
+      )
     }
+
+    const items = projects.map(project => {
+      return (
+        <ItemCard
+          key={project.id}
+          {...project}
+        />
+      )
+    })
+
     return (
-      <div className='item-list'>
-        {errorPanel}
-        {items}
-      </div>
+      <View items={items} />
     )
   }
 }
+
+const View = ({items}) => {
+  return (
+    <div className='item-list'>
+      {items}
+    </div>
+  )
+}
+
+const mapStateToProps = (state) => {
+  return {
+    projects: state.projects,
+    loading: state.loading,
+    error: state.error,
+    searchPhrase: state.searchPhrase
+  }
+}
+
+const mapDispatchToProps = {
+  projectsLoaded,
+  projectsError,
+  projectsRequested
+}
+
+export default WithSearchService()(connect(mapStateToProps, mapDispatchToProps)(ItemList));

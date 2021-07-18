@@ -9,6 +9,7 @@
         "eslint:recommended",
         "plugin:react/recommended"
     ],
+    "parser": "babel-eslint",
     "parserOptions": {
         "ecmaFeatures": {
             "jsx": true
@@ -24,12 +25,26 @@
         "no-unused-vars": ["error", { "caughtErrorsIgnorePattern": "^ignore" }],
         "react/jsx-uses-react": 1,
         "react/jsx-uses-vars": "error",
-
         "linebreak-style": [
             "error",
             "unix"
         ],
+        "keyword-spacing": [2, {
+            "before": true,
+            "after": true
+        }],
+        "arrow-spacing": [2, {
+            "before": true,
+            "after": true
+        }],
+        "jsx-quotes": [2, "prefer-single"],
+        "block-spacing": [2, "always"],
+        "no-console": "off",
+        "no-useless-call": 2,
+        "no-useless-computed-key": 2,
+        "no-useless-constructor": 2,
+        "no-useless-escape": 0,
+        "comma-dangle": [2, "never"],
         "react/prop-types": "off"
-
     }
 }

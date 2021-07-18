@@ -5,22 +5,16 @@ export default class SearchService {
 
   getResource = async (url) => {
     const res = await fetch(`${this._apiBase}${url}`);
-
     if (!res.ok) {
       throw new Error(`Could not fetch ${url}, status: ${res.status}`)
     }
+    console.log(`Fetching ${this._apiBase}${url}, status: ${res.status}`)
     return await res.json();
   }
 
   getAllProjects = async (searchPhrase) => {
     const res = await this.getResource(`/repositories?q=${searchPhrase}`);
-    // return res;
     return res.items.map(this._transformProject);
-  }
-
-  getProject = async (id) => {
-    const project = await this.getResource(`/characters/${id}`);
-    return this._transformProject(project);
   }
 
   _transformProject(project) {

@@ -19,11 +19,9 @@ export default class App extends Component {
 
   }
   render() {
-    // this.searchService.getAllProjects('proj')
-    //   .then((res) => console.log(res))
     const {searchPhrase} = this.state;
     return (
-      <div className="app">
+      <div className='app'>
         <Container>
           <SearchPanel onValueChange={this.updateSearch}/>
           <ItemList
